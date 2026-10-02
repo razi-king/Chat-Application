@@ -1,7 +1,7 @@
 export enum FieldStyles {
-    DEFAULT = "w-full dark:bg-gray-600 px-4 py-2 border dark:border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500",
-    FOCUSED = "border-primary-500 bg-white text-primary-900 shadow-sm focus:border-primary-600 focus:ring-primary-600 ring-1 ring-primary-500",
-    ERROR = "border-red-300 bg-red-50 text-red-900 placeholder-red-400 focus:border-red-500 focus:ring-red-500 ring-1 ring-red-300",
-    DISABLED = "border-primary-100 bg-primary-50 text-primary-500 cursor-not-allowed",
-    SUCCESS = "border-secondary-300 bg-secondary-50 text-secondary-900 placeholder-secondary-400 focus:border-secondary-500 focus:ring-secondary-500",
+    DEFAULT = "bg-white/[0.03] border-white/10 text-slate-100 placeholder-slate-500 focus:border-cyan-400/60 focus:ring-cyan-400/20",
+    FOCUSED = "bg-white/[0.05] border-cyan-400/60 text-slate-50 placeholder-slate-500 ring-cyan-400/20 shadow-[0_0_0_4px_rgba(34,211,238,0.08)]",
+    ERROR = "bg-rose-500/[0.06] border-rose-400/70 text-rose-50 placeholder-rose-300/50 focus:border-rose-400 focus:ring-rose-400/30",
+    DISABLED = "bg-white/[0.02] border-white/5 text-slate-500 cursor-not-allowed",
+    SUCCESS = "bg-emerald-500/[0.05] border-emerald-400/60 text-slate-50 placeholder-slate-500 focus:ring-emerald-400/30",
   }

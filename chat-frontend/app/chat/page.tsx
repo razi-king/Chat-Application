@@ -1,8 +1,6 @@
-import ChatPage from '@/component/chat/ChatPage'
-import React from 'react'
+import { redirect } from 'next/navigation'
 
+// Old Route: The Chat Now Lives Inside The App Shell
 export default function page() {
-  return (
-    <ChatPage/>
-  )
+  redirect('/app/chats')
 }

@@ -6,12 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:stable": "next dev --webpack",
+    "build:stable": "next build --webpack"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
     "@stomp/stompjs": "^7.2.1",
     "axios": "^1.13.2",
     "formik": "^2.4.9",
+    "framer-motion": "^13.5.0",
     "lucide-react": "^0.562.0",
     "next": "16.1.0",
     "react": "19.2.3",
@@ -19,6 +24,7 @@
     "react-hot-toast": "^2.6.0",
     "react-icons": "^5.5.0",
     "sockjs-client": "^1.6.1",
+    "three": "^0.186.1",
     "yup": "^1.7.1"
   },
   "devDependencies": {
@@ -26,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.0",
     "tailwindcss": "^4",

@@ -27,13 +27,14 @@ const InputField = ({
         if(value !== undefined){
             helpers.setValue(value);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
     const isFilled = field.value && (
         (typeof field.value === 'string' && field.value.length > 0) || 
         (field.value instanceof File)
     );
     const getInputClasses = () => {
-        const baseClass = `w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 font-medium`
+        const baseClass = `w-full px-4 py-3 border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 font-medium`
         if (hasErrors) {
             return `${baseClass} ${FieldStyles.ERROR} ${className}`.trim();
         }
@@ -125,6 +126,7 @@ const InputField = ({
                 <div className='relative'>
                     <input
                         {...field}
+                        id={name}
                         type={showPassword ? 'text' : 'password'}
                         placeholder={placeHolder}
                         disabled={disabled}
@@ -139,7 +141,7 @@ const InputField = ({
                     <button
                         type='button'
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className='absolute right-4 top-1/2 -translate-y-1/2 text-primary-500 hover:text-primary-700 transition-colors duration-200'
+                        className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-cyan-300 transition-colors duration-200'
                         tabIndex={-1}
                     >
                         {showPassword ? <EyeOff size={20}/> : <Eye size={20}/>}
@@ -152,6 +154,7 @@ const InputField = ({
             inputElement = (
                 <input
                     {...field}
+                    id={name}
                     type={type}
                     placeholder={placeHolder}
                     readOnly={readOnly}
@@ -167,14 +170,14 @@ const InputField = ({
     }
   return (
 
-    <div className='mb-6'>
+    <div className='mb-5'>
             {label && (
                 <label 
                     htmlFor={name}
-                    className={`block mb-3 font-semibold text-sm transition-colors duration-200 ${
-                        hasErrors ? 'text-red-600' : 
-                        isFocused ? 'text-primary-700' : 
-                        'text-primary-800'
+                    className={`block mb-2 font-medium text-xs uppercase tracking-[0.14em] transition-colors duration-200 ${
+                        hasErrors ? 'text-rose-400' :
+                        isFocused ? 'text-cyan-300' :
+                        'text-slate-400'
                     }`}
                 >
                     {label}
@@ -183,7 +186,7 @@ const InputField = ({
             )}
             {inputElement}
             {meta.touched && meta.error && (
-                <div className="flex items-center space-x-1 text-red-600 text-sm mt-2">
+                <div className="flex items-center space-x-1 text-rose-400 text-sm mt-2">
                     <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>

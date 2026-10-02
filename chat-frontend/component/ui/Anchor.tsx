@@ -1,14 +1,17 @@
 import React from "react";
+import Link from "next/link";
 
 interface Props {
   href: string;
   label: string;
   className?: string;
+  active?: boolean;
 }
 
-const Anchor = ({ href, label, className = "" }: Props) => {
+// next/link -> Client Side Navigation Instead Of A Full Page Reload
+const Anchor = ({ href, label, className = "", active = false }: Props) => {
   return (
-    <a
+    <Link
       href={href}
       className={`
         relative
@@ -17,17 +20,20 @@ const Anchor = ({ href, label, className = "" }: Props) => {
         after:left-0
         after:-bottom-1
         after:h-[2px]
-        after:w-0
-        after:bg-white
+        after:bg-gradient-to-r
+        after:from-cyan-400
+        after:to-violet-400
         after:transition-all
         after:duration-300
-        after:delay-150
         hover:after:w-full
+        hover:text-white
+        transition-colors
+        ${active ? "after:w-full text-white" : "after:w-0"}
         ${className}
       `}
     >
       {label}
-    </a>
+    </Link>
   );
 };
 

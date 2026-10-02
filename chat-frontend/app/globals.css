@@ -1,32 +1,192 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the .dark class on <body> instead of the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #04050c;
+  --foreground: #e6e9ff;
+  --surface: #0a0c19;
+  --surface-2: #10132a;
+  --border: rgba(148, 163, 255, 0.12);
+  --muted: #8b90b3;
+  --neon-cyan: #22d3ee;
+  --neon-violet: #a78bfa;
+  --neon-pink: #f472b6;
+  --neon-green: #34d399;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-muted: var(--muted);
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-violet: var(--neon-violet);
+  --color-neon-pink: var(--neon-pink);
+  --color-neon-green: var(--neon-green);
+
+  /* Used by FieldStyles / ButtonStyles enums */
+  --color-primary-50: #ecfeff;
+  --color-primary-100: #cffafe;
+  --color-primary-200: #a5f3fc;
+  --color-primary-300: #67e8f9;
+  --color-primary-400: #22d3ee;
+  --color-primary-500: #06b6d4;
+  --color-primary-600: #0891b2;
+  --color-primary-700: #0e7490;
+  --color-primary-800: #155e75;
+  --color-primary-900: #164e63;
+  --color-secondary-50: #f5f3ff;
+  --color-secondary-300: #c4b5fd;
+  --color-secondary-400: #a78bfa;
+  --color-secondary-500: #8b5cf6;
+  --color-secondary-900: #4c1d95;
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display-face);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-glow: glow 3s ease-in-out infinite;
+  --animate-gradient: gradient-x 8s ease infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-pop: pop 0.25s ease-out;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes glow {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
-.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
 
-  --app-dark-bg: #030712;
+::selection {
+  background: rgba(34, 211, 238, 0.35);
+}
+
+/* ---------- Scrollbars ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 255, 0.18) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 255, 0.18);
+  border-radius: 999px;
+}
+
+/* ---------- Futuristic building blocks ---------- */
+@utility glass {
+  background: linear-gradient(160deg, rgba(20, 24, 48, 0.72), rgba(10, 12, 25, 0.62));
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border);
+}
+
+@utility glass-soft {
+  background: rgba(16, 19, 42, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 255, 0.08);
+}
+
+@utility text-gradient {
+  background: linear-gradient(90deg, #22d3ee, #a78bfa 45%, #f472b6);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Animated gradient border using a mask */
+@utility neon-border {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(120deg, rgba(34, 211, 238, 0.9), rgba(167, 139, 250, 0.6), rgba(244, 114, 182, 0.9));
+    background-size: 200% 200%;
+    animation: gradient-x 6s ease infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+@utility bg-grid {
+  background-image:
+    linear-gradient(rgba(148, 163, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 255, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility bg-aurora {
+  background:
+    radial-gradient(60rem 30rem at 10% -10%, rgba(34, 211, 238, 0.14), transparent 60%),
+    radial-gradient(50rem 30rem at 100% 0%, rgba(167, 139, 250, 0.16), transparent 60%),
+    radial-gradient(40rem 25rem at 50% 120%, rgba(244, 114, 182, 0.1), transparent 60%),
+    var(--background);
+}
+
+@utility glow-cyan {
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.35), 0 8px 32px -6px rgba(34, 211, 238, 0.45);
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, rgba(148, 163, 255, 0.06) 25%, rgba(148, 163, 255, 0.14) 50%, rgba(148, 163, 255, 0.06) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* 3D perspective helpers for tilt cards */
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+@utility perspective {
+  perspective: 1000px;
+}
+
+/* iOS Safari zooms into any input whose text is smaller than 16px; keep phones at 16px */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
 }

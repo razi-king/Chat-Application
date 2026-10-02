@@ -2,26 +2,17 @@ package com.example.crm.exception;
 
 import com.example.crm.enums.ErrorCode;
 
-public class DuplicateResourceException extends RuntimeException {
-	private ErrorCode errorCode;
-	private String message;
-	
+public class DuplicateResourceException extends ChatAppException {
+	public DuplicateResourceException(ErrorCode errorCode) {
+		super(errorCode);
+	}
+
 	public DuplicateResourceException(String message, ErrorCode errorCode) {
-		this.message = message;
-		this.errorCode = errorCode;
+		super(errorCode, message);
 	}
-	// Getter And Setters
-	public ErrorCode getErrorCode() {
-		return errorCode;
+
+	// meta Example: {"username": "Username is already taken"} -> Shown Under That Form Field
+	public DuplicateResourceException(String message, ErrorCode errorCode, Object meta) {
+		super(errorCode, message, meta);
 	}
-	public void setErrorCode(ErrorCode errorCode) {
-		this.errorCode = errorCode;
-	}
-	public String getMessage() {
-		return message;
-	}
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	
 }

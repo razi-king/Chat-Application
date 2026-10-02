@@ -2,20 +2,27 @@ package com.example.crm.service;
 
 import java.util.List;
 
-import com.example.crm.dto.RoomRequestDto;
-import com.example.crm.dto.RoomResponseDto;
-import com.example.crm.entity.Message;
-
-import jakarta.validation.Valid;
+import com.example.crm.dto.request.CreateChannelRequest;
+import com.example.crm.dto.request.CreateGroupRequest;
+import com.example.crm.dto.response.RoomResponse;
 
 public interface RoomService {
 
-	RoomResponseDto createRoom(@Valid RoomRequestDto roomRequestDto);
+	List<RoomResponse> myConversations(String userId);
 
-	List<Message> getMessageByRoomId(String roomId);
+	RoomResponse getRoom(String roomId, String userId);
 
-	RoomResponseDto getRoomByRoomId(String roomId);
+	RoomResponse openDirect(String otherUserId, String userId);
 
-	List<Message> getMessageByRoomId2(String roomId, int page, int size);
+	RoomResponse createGroup(CreateGroupRequest request, String userId);
 
+	RoomResponse createChannel(String serverId, CreateChannelRequest request, String userId);
+
+	void deleteRoom(String roomId, String userId);
+
+	RoomResponse addMembers(String roomId, List<String> userIds, String userId);
+
+	void removeMember(String roomId, String targetUserId, String userId);
+
+	void markRead(String roomId, String userId);
 }
