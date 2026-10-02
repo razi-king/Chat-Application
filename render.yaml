@@ -6,6 +6,8 @@ services:
     name: nexus-chat-api
     runtime: docker
     plan: free
+    # Closest Render region to India; create the Atlas cluster in Singapore/Mumbai too so DB calls stay short
+    region: singapore
     rootDir: ChatAppBackend
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/v1/health
