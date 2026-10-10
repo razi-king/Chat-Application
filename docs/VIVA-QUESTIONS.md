@@ -139,7 +139,7 @@ Both try to insert a room with the same `directKey`. The unique index accepts on
 Redis `HINCRBY unread:{userId} roomId 1` is atomic, so there's no read-modify-write race in Java. If Redis is down, the count is computed from MongoDB as messages after `lastReadAt`.
 
 **40. What happens if Redis is down?**
-`RedisSafe` catches the failure, logs it once and skips Redis for 30 seconds. Presence switches to an in-memory map, unread counts come from MongoDB, and rate limiting fails open. The chat keeps working.
+`RedisSafe` catches the failure, logs it once and skips Redis for 30 seconds. Presence switches to an in-memory map, unread counts come from MongoDB, and rate limits and the login lockout are counted in the server's memory instead (they keep working on a single server). The chat keeps working.
 
 **41. Did testing find any real bugs?**
 Yes, two.

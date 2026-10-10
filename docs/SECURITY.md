@@ -5,7 +5,7 @@
 | Threat | Defence |
 |---|---|
 | Password database leak | BCrypt hashing (`BCryptPasswordEncoder`, salted, slow by design); hashes never leave the server |
-| Guessing passwords | Login rate limit: 10 attempts / minute / identifier (Redis `INCR`) |
+| Guessing passwords | Login rate limit: 10 attempts / minute / identifier (Redis `INCR`), plus **account lockout**: 5 wrong passwords in a row lock the account for 15 minutes (`LoginAttemptServiceImpl`, keys `auth:fail:{account}` / `auth:lock:{account}`, error `AUTH_429`). A locked account is refused even with the correct password; success resets the counter. Unknown usernames are counted too, so responses do not reveal which accounts exist |
 | Discovering which usernames exist | Same `AUTH_402` "Invalid username or password" for unknown user and wrong password |
 | Forged / tampered tokens | JWT signed with HMAC-SHA256; signature checked on every request |
 | Stolen token after logout | Token id (`jti`) blacklisted in Redis until its natural expiry |
@@ -25,7 +25,7 @@
 
 ```
 1. POST /auth/login {identifier, password}
-2. AuthServiceImpl: rate limit → find user → BCrypt.matches
+2. AuthServiceImpl: rate limit → find user → lockout check → BCrypt.matches (wrong → count failure, right → reset)
 3. JwtService.generateToken: header {alg: HS256}
                              payload {jti: uuid, sub: userId, username, iat, exp: now+72h}
                              signature = HMAC_SHA256(secret, header.payload)

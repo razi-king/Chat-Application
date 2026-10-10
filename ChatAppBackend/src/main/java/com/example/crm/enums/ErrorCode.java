@@ -20,6 +20,7 @@ public enum ErrorCode {
 	INVALID_CREDENTIALS("AUTH_402", HttpStatus.UNAUTHORIZED, "Invalid username or password"),
 	TOKEN_EXPIRED("AUTH_403", HttpStatus.UNAUTHORIZED, "Session expired, please login again"),
 	ACCESS_DENIED("AUTH_404", HttpStatus.FORBIDDEN, "You do not have permission to do this"),
+	ACCOUNT_LOCKED("AUTH_429", HttpStatus.TOO_MANY_REQUESTS, "Too many failed login attempts. Try again later"),
 
 	// User
 	USER_NOT_FOUND("USER_404", HttpStatus.NOT_FOUND, "User not found"),

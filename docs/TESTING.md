@@ -4,7 +4,7 @@
 cd ChatAppBackend
 ./mvnw test            # Windows: .\mvnw.cmd test
 ```
-Current result: **28 tests, 0 failures** (integration tests run when MongoDB is reachable on `localhost:27017`, otherwise they are skipped).
+Current result: **33 tests, 0 failures** (integration tests run when MongoDB is reachable on `localhost:27017`, otherwise they are skipped).
 
 ## 1. Strategy
 

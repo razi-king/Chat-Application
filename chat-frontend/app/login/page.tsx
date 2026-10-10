@@ -43,6 +43,10 @@ function LoginForm() {
           if (isApiError(e) && e.code === ErrorCodes.INVALID_CREDENTIALS) {
             actions.setFieldError("password", "Invalid username or password");
           }
+          // 5 Wrong Passwords -> The Server Locks The Account For 15 Minutes; Show Its "Try Again In N Minutes"
+          if (isApiError(e) && (e.code === ErrorCodes.ACCOUNT_LOCKED || e.code === ErrorCodes.RATE_LIMITED)) {
+            actions.setFieldError("password", e.message);
+          }
         } finally {
           actions.setSubmitting(false);
         }

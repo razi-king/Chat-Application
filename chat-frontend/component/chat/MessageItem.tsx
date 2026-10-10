@@ -62,6 +62,10 @@ export default function MessageItem(props: Props) {
     if ((e.target as HTMLElement).closest("button, textarea, a")) return;
     setToolsOpen((o) => !o);
   };
+  const closeMenus = () => {
+    setShowReactions(false);
+    setToolsOpen(false);
+  };
   const mentionsMe = m.mentions?.includes(meId);
 
   // ---------- System Message ("Razi joined the server") ----------
@@ -143,22 +147,36 @@ export default function MessageItem(props: Props) {
     </div>
   );
 
+  // Bubbles Of Other People Sit On The Left, So Their Toolbar And Emoji Picker Open From The Left Edge
+  const alignLeft = layout === "bubble" && !mine;
+
   // ---------- Hover Toolbar ----------
+  // Stays Visible While The Emoji Picker Is Open; The Picker Opens BELOW The Toolbar With No Gap
+  // (A Gap Used To Make The Toolbar Disappear Before The Mouse Reached An Emoji).
   const toolbar = !m.deleted && !m.pending && !editing && (
     <div
       className={cn(
-        "absolute -top-4 z-10 group-hover:flex items-center gap-0.5 glass rounded-xl p-0.5 shadow-xl",
-        toolsOpen ? "flex" : "hidden",
-        mine && layout === "bubble" ? "right-2" : "right-4"
+        "absolute -top-4 z-20 group-hover:flex items-center gap-0.5 glass rounded-xl p-0.5 shadow-xl",
+        toolsOpen || showReactions ? "flex" : "hidden",
+        layout === "bubble" ? (alignLeft ? "left-2" : "right-2") : "right-4"
       )}
     >
       <div className="relative">
         <ToolButton title="React" onClick={() => setShowReactions((s) => !s)}><SmilePlus size={15} /></ToolButton>
         {showReactions && (
-          <div className="absolute bottom-9 right-0 glass rounded-full px-2 py-1 flex gap-1" onMouseLeave={() => setShowReactions(false)}>
-            {QUICK_REACTIONS.map((e) => (
-              <button key={e} onClick={() => { props.onReact(m, e); setShowReactions(false); }} className="text-lg hover:scale-125 transition-transform cursor-pointer">{e}</button>
-            ))}
+          <div className={cn("absolute top-full pt-1.5 z-30", alignLeft ? "left-0" : "right-0")}>
+            <div className="glass rounded-full px-2 py-1 flex gap-1 shadow-xl">
+              {QUICK_REACTIONS.map((e) => (
+                <button
+                  key={e}
+                  title={`React ${e}`}
+                  onClick={() => { props.onReact(m, e); setShowReactions(false); setToolsOpen(false); }}
+                  className="text-lg hover:scale-125 transition-transform cursor-pointer"
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -188,6 +206,7 @@ export default function MessageItem(props: Props) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.18 }}
         onClick={toggleTools}
+        onMouseLeave={closeMenus}
         className={cn("group relative flex gap-2 px-3 sm:px-4", mine ? "justify-end" : "justify-start", grouped ? "mt-0.5" : "mt-3")}
       >
         {!mine && (
@@ -216,8 +235,9 @@ export default function MessageItem(props: Props) {
             <button onClick={() => props.onRetry(m)} className="block text-[11px] text-rose-200 underline mt-1 cursor-pointer">Not sent · tap to retry</button>
           )}
           {reactions}
+          {/* Inside The Bubble, So The Toolbar Appears Right On The Message (Also For Other People's Messages) */}
+          {toolbar}
         </div>
-        {toolbar}
       </motion.div>
     );
   }
@@ -227,6 +247,7 @@ export default function MessageItem(props: Props) {
     <div
       id={`msg-${m.id}`}
       onClick={toggleTools}
+      onMouseLeave={closeMenus}
       className={cn(
         "group relative flex gap-3 sm:gap-4 px-3 sm:px-4 py-0.5 hover:bg-white/[0.025] transition-colors",
         grouped ? "" : "mt-4 pt-1",

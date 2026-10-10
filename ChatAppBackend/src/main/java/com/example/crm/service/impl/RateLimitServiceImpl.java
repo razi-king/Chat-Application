@@ -1,6 +1,9 @@
 package com.example.crm.service.impl;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 public class RateLimitServiceImpl implements RateLimitService {
 	private final StringRedisTemplate redis;
 	private final RedisSafe redisSafe;
+	// Fallback When Redis Is Down: The Same Window Keys Counted In This Server's Memory
+	private final Map<String, AtomicLong> memory = new ConcurrentHashMap<>();
 
 	// Atomic INCR: Even Under Concurrency Exactly "limit" Calls Per Window Get Through (Used For Login)
 	@Override
@@ -32,7 +37,10 @@ public class RateLimitServiceImpl implements RateLimitService {
 		long count = redisSafe.call(() -> {
 			String value = redis.opsForValue().get(key);
 			return value == null ? 0L : Long.parseLong(value);
-		}, () -> 0L);
+		}, () -> {
+			AtomicLong local = memory.get(key);
+			return local == null ? 0L : local.get();
+		});
 		failIfOver(count + 1, limit, windowSeconds);
 	}
 
@@ -42,15 +50,22 @@ public class RateLimitServiceImpl implements RateLimitService {
 	}
 
 	private long increment(String key, int windowSeconds) {
-		// If Redis Is Down We Let The Request Through (Fail Open): Losing Spam Protection For A While
-		// Is Better Than Blocking Every User's Chat
+		// If Redis Is Down We Count In Memory Instead, So Limits Still Work On A Single Server
 		return redisSafe.call(() -> {
 			Long value = redis.opsForValue().increment(key);
 			if (value != null && value == 1) {
 				redis.expire(key, Duration.ofSeconds(windowSeconds));
 			}
 			return value == null ? 0L : value;
-		}, () -> 0L);
+		}, () -> memoryIncrement(key));
+	}
+
+	private long memoryIncrement(String key) {
+		// Keys Contain The Window Number, So Old Windows Are Never Used Again: Clear Them Now And Then
+		if (memory.size() > 10_000) {
+			memory.clear();
+		}
+		return memory.computeIfAbsent(key, k -> new AtomicLong()).incrementAndGet();
 	}
 
 	private static String key(String userId, String action, int windowSeconds) {

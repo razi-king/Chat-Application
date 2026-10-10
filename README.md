@@ -132,7 +132,7 @@ cd ChatAppBackend
 ./mvnw test
 ```
 
-28 tests: unit (Mockito), error-flow (MockMvc), JWT, a concurrency test, and real-MongoDB integration tests (auto-skipped if MongoDB is not running).
+33 tests: unit (Mockito), error-flow (MockMvc), JWT, a concurrency test, and real-MongoDB integration tests (auto-skipped if MongoDB is not running).
 See [docs/TESTING.md](docs/TESTING.md).
 
 ## 10. Project structure
@@ -180,6 +180,7 @@ Chat-Application/
 | [DECISIONS.md](docs/DECISIONS.md) | Architectural decision records (why X, not Y) |
 | [VIVA-QUESTIONS.md](docs/VIVA-QUESTIONS.md) | Questions your professor / interviewer is likely to ask, with answers |
 | [DEMO-CHECKLIST.md](docs/DEMO-CHECKLIST.md) | One-page live demo script for the presentation |
+| [College Viva Document/](College%20Viva%20Document/README.md) | Simple viva notes in 10 chapters + 66 viva Q&A + combined PDF (`Nexus_Project_Documentation.pdf`) |
 
 ## 12. Future improvements
 

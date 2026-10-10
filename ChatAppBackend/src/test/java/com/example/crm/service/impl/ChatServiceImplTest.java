@@ -201,4 +201,19 @@ class ChatServiceImplTest {
 				.extracting(ex -> ((ChatAppException) ex).getErrorCode()).isEqualTo(ErrorCode.MESSAGE_NOT_OWNED);
 		verify(messageRepository, times(0)).save(any());
 	}
+
+	// Protects: Any Room Member Can React To ANY Message (Not Only Their Own), And A Second Click Removes It
+	@Test
+	void react_onOthersMessage_togglesReactionForThisUser() {
+		Message bobs = Message.builder().id("m2").roomId(ROOM).senderId(BOB).content("hi").build();
+		when(messageRepository.findById("m2")).thenReturn(Optional.of(bobs));
+
+		chatService.react("m2", "🔥", ALICE);
+		assertThat(bobs.getReactions().get("🔥")).containsExactly(ALICE);
+
+		chatService.react("m2", "🔥", ALICE);
+		assertThat(bobs.getReactions()).doesNotContainKey("🔥");
+		verify(messageRepository, times(2)).save(bobs);
+		verify(realtimeService, times(2)).toRoom(eq(ROOM), any());
+	}
 }

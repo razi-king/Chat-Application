@@ -36,6 +36,7 @@ import com.example.crm.exception.UnauthorizedException;
 import com.example.crm.mapper.UserMapper;
 import com.example.crm.repository.UserRepository;
 import com.example.crm.security.JwtService;
+import com.example.crm.service.LoginAttemptService;
 import com.example.crm.service.RateLimitService;
 import com.example.crm.service.TokenBlacklistService;
 
@@ -51,6 +52,8 @@ class AuthServiceImplTest {
 	private TokenBlacklistService tokenBlacklistService;
 	@Mock
 	private RateLimitService rateLimitService;
+	@Mock
+	private LoginAttemptService loginAttemptService;
 	@Mock
 	private UserMapper userMapper;
 	@InjectMocks
@@ -166,5 +169,43 @@ class AuthServiceImplTest {
 		assertThatThrownBy(() -> authService.login(login)).isInstanceOf(RateLimitException.class);
 		verify(userRepository, never()).findByUsername(anyString());
 		verify(passwordEncoder, never()).matches(anyString(), anyString());
+	}
+
+	// Protects: Every Wrong Password Is Counted Against The ACCOUNT (Its Id), A Correct One Clears The Counter
+	@Test
+	void login_wrongThenRight_failureRecordedThenCleared() {
+		User user = User.builder().id("u1").username("razi").passwordHash("$2a$hash").build();
+		when(userRepository.findByUsername("razi")).thenReturn(Optional.of(user));
+		when(passwordEncoder.matches("bad", "$2a$hash")).thenReturn(false);
+		when(passwordEncoder.matches("good", "$2a$hash")).thenReturn(true);
+		stubTokenIssuing();
+		LoginRequest wrong = new LoginRequest();
+		wrong.setIdentifier("razi");
+		wrong.setPassword("bad");
+		LoginRequest right = new LoginRequest();
+		right.setIdentifier("razi");
+		right.setPassword("good");
+
+		assertThatThrownBy(() -> authService.login(wrong)).isInstanceOf(UnauthorizedException.class);
+		verify(loginAttemptService).recordFailure("u1");
+		authService.login(right);
+		verify(loginAttemptService).recordSuccess("u1");
+	}
+
+	// Protects: A Locked Account Is Refused Even With The CORRECT Password (Otherwise Guessing Could Continue)
+	@Test
+	void login_lockedAccount_rejectedEvenWithCorrectPassword() {
+		User user = User.builder().id("u1").username("razi").passwordHash("$2a$hash").build();
+		when(userRepository.findByUsername("razi")).thenReturn(Optional.of(user));
+		org.mockito.Mockito.doThrow(new RateLimitException("locked", ErrorCode.ACCOUNT_LOCKED))
+				.when(loginAttemptService).ensureNotLocked("u1");
+		LoginRequest login = new LoginRequest();
+		login.setIdentifier("razi");
+		login.setPassword("good");
+
+		assertThatThrownBy(() -> authService.login(login)).isInstanceOf(RateLimitException.class)
+				.extracting(ex -> ((ChatAppException) ex).getErrorCode()).isEqualTo(ErrorCode.ACCOUNT_LOCKED);
+		verify(passwordEncoder, never()).matches(anyString(), anyString());
+		verify(jwtService, never()).generateToken(any());
 	}
 }

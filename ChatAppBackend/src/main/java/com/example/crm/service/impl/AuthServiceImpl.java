@@ -17,6 +17,7 @@ import com.example.crm.mapper.UserMapper;
 import com.example.crm.repository.UserRepository;
 import com.example.crm.security.JwtService;
 import com.example.crm.service.AuthService;
+import com.example.crm.service.LoginAttemptService;
 import com.example.crm.service.RateLimitService;
 import com.example.crm.service.TokenBlacklistService;
 import com.example.crm.util.Colors;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtService jwtService;
 	private final TokenBlacklistService tokenBlacklistService;
 	private final RateLimitService rateLimitService;
+	private final LoginAttemptService loginAttemptService;
 	private final UserMapper userMapper;
 
 	@Override
@@ -60,13 +62,20 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public AuthResponse login(LoginRequest request) {
 		String identifier = request.getIdentifier().trim().toLowerCase(Locale.ROOT);
-		// Max 10 Attempts Per Minute Per Account (Redis)
+		// Max 10 Attempts Per Minute Per Identifier (Redis) -> Stops Floods Before Any Database / BCrypt Work
 		rateLimitService.check(identifier, "login", 10, 60);
 		User user = (identifier.contains("@") ? userRepository.findByEmail(identifier) : userRepository.findByUsername(identifier))
-				.orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS));
-		if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+				.orElse(null);
+		// Lockout Is Per Account (Username And Email Share One Counter); Unknown Names Are Counted Too,
+		// So The Response Looks The Same Whether Or Not The Account Exists
+		String accountKey = user != null ? user.getId() : identifier;
+		// 5 Wrong Passwords -> Locked For 15 Minutes, Even With The Correct Password
+		loginAttemptService.ensureNotLocked(accountKey);
+		if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+			loginAttemptService.recordFailure(accountKey);
 			throw new UnauthorizedException(ErrorCode.INVALID_CREDENTIALS);
 		}
+		loginAttemptService.recordSuccess(accountKey);
 		return buildAuthResponse(user);
 	}
 
